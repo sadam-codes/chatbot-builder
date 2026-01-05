@@ -19,18 +19,34 @@ async function bootstrap() {
   // Support multiple origins (comma-separated) or single origin
   const allowedOrigins = corsOrigin.split(',').map(origin => origin.trim());
   
+  // Global CORS middleware - must be before other middleware
+  app.use((req: any, res: any, next: any) => {
+    const origin = req.headers.origin;
+    
+    // Check if origin is allowed
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else if (!origin) {
+      // Allow requests with no origin
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
+    res.setHeader('Access-Control-Expose-Headers', 'Authorization');
+    
+    // Handle preflight OPTIONS requests
+    if (req.method === 'OPTIONS') {
+      return res.status(204).end();
+    }
+    
+    next();
+  });
+
+  // Also enable CORS using NestJS built-in
   app.enableCors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      // Check if origin is in allowed list
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
@@ -42,28 +58,6 @@ async function bootstrap() {
   // Explicit body parsers
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-
-  // Add CORS middleware specifically for public API endpoints
-  app.use((req: any, res: any, next: any) => {
-    // Check if this is a public API endpoint
-    if (req.path && req.path.includes('/chatbot/public/')) {
-      // Allow all origins for public API
-      const origin = req.headers.origin;
-      if (origin) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-      } else {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-      }
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-      
-      // Handle preflight requests
-      if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-      }
-    }
-    next();
-  });
 
   const sequelize = app.get(Sequelize);
   await sequelize.sync({ alter: true });
