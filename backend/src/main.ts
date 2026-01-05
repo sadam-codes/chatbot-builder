@@ -79,6 +79,27 @@ async function getApp() {
 
 // For Vercel serverless
 export const handler = async (event: any, context: any) => {
+  // Handle OPTIONS preflight requests directly
+  if (event.httpMethod === 'OPTIONS' || event.requestContext?.http?.method === 'OPTIONS') {
+    const app = await getApp();
+    const configService = app.get(ConfigService);
+    const corsOrigin = configService.get('CORS_ORIGIN') || 'https://chatbot-builder-virid.vercel.app';
+    const allowedOrigins = corsOrigin.split(',').map(origin => origin.trim());
+    const origin = event.headers?.origin || event.headers?.Origin || event.headers?.['origin'] || event.headers?.['Origin'];
+    
+    return {
+      statusCode: 204,
+      headers: {
+        'Access-Control-Allow-Origin': origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0] || '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, Origin, X-Requested-With',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400',
+      },
+      body: '',
+    };
+  }
+
   if (!cachedHandler) {
     const app = await getApp();
     const expressApp = app.getHttpAdapter().getInstance();
