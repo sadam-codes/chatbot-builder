@@ -30,7 +30,7 @@ interface Agent {
 export default function AgentsList() {
   const navigate = useNavigate();
   // @ts-ignore
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000/api/v1";
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://chatbot-builder-backend-three.vercel.app/api/v1";
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -109,9 +109,9 @@ export default function AgentsList() {
   };
 
   const getApiUrl = (agentId: string) => {
-    // @ts-ignore
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api/v1";
-    const baseUrl = backendUrl.replace("/api/v1", "");
+    // Use the same BACKEND_URL that's used for other API calls
+    // This ensures consistency and works in both development and production
+    const baseUrl = BACKEND_URL.replace("/api/v1", "");
     return `${baseUrl}/api/v1/chatbot/public/chat/${agentId}`;
   };
 
