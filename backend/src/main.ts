@@ -78,7 +78,7 @@ async function getApp() {
 }
 
 // For Vercel serverless
-export const handler = async (event: any, context: any) => {
+async function createHandler() {
   if (!cachedHandler) {
     const app = await getApp();
     const expressApp = app.getHttpAdapter().getInstance();
@@ -86,8 +86,17 @@ export const handler = async (event: any, context: any) => {
       binary: false,
     });
   }
-  return cachedHandler(event, context);
+  return cachedHandler;
+}
+
+const handler = async (event: any, context: any) => {
+  const handlerFunc = await createHandler();
+  return handlerFunc(event, context);
 };
+
+// Export both default and named for Vercel compatibility
+export default handler;
+export { handler };
 
 // For local development
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
