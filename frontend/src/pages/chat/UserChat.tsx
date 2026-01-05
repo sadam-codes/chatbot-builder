@@ -36,6 +36,7 @@ function UserChat() {
   const [loadingAgent, setLoadingAgent] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  // @ts-ignore
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api/v1";
 
   useEffect(() => {
@@ -236,11 +237,25 @@ function UserChat() {
 
   const closeDropdown = () => setIsDropdownOpen(false);
 
+  // Get background image based on agent
+  const getAgentBackground = () => {
+    if (agent) {
+      // Use agent name or role to determine background
+      const agentName = agent.name.toLowerCase();
+      if (agentName.includes('support') || agentName.includes('help')) {
+        return 'help.jpg';
+      } else if (agentName.includes('agent') || agent.role.toLowerCase().includes('assistant')) {
+        return 'agent.png';
+      }
+    }
+    return 'agenBg.png'; // Default background
+  };
+
   if (loadingAgent) {
     return (
-      <div className="flex items-center justify-center h-screen bg-white">
+      <div className="flex items-center justify-center h-screen bg-emerald-50">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-3 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-slate-600">Loading agent...</p>
         </div>
       </div>
@@ -249,12 +264,12 @@ function UserChat() {
 
   if (!agent) {
     return (
-      <div className="flex items-center justify-center h-screen bg-white">
+      <div className="flex items-center justify-center h-screen bg-emerald-50">
         <div className="text-center">
           <p className="text-slate-600 mb-4">Agent not found</p>
           <button
             onClick={() => navigate("/agents")}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
           >
             Go to Agents
           </button>
@@ -263,10 +278,22 @@ function UserChat() {
     );
   }
 
+  const bgImage = getAgentBackground();
+
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      {/* HEADER - Beautiful & Responsive */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
+    <div className="flex flex-col h-screen relative overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 opacity-[0.03] bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url(/src/assets/${bgImage})`,
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/40 via-white/50 to-emerald-50/30" />
+      
+      <div className="flex flex-col h-screen relative z-10">
+      {/* HEADER - Light & Minimal */}
+      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             {/* Left: Agent Info */}
@@ -275,13 +302,13 @@ function UserChat() {
               onClick={() => navigate("/agents")}
             >
               <div className="relative">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                  <span className="text-white text-sm sm:text-base font-bold">{agent.name.charAt(0).toUpperCase()}</span>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-500/90 flex items-center justify-center shadow-sm group-hover:shadow transition-all duration-300 group-hover:scale-105">
+                  <span className="text-white text-sm sm:text-base font-medium">{agent.name.charAt(0).toUpperCase()}</span>
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-emerald-400 rounded-full border-2 border-white"></div>
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent truncate">
+                <h1 className="text-base sm:text-lg md:text-xl font-medium text-slate-800 truncate">
                   {agent.name}
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-500 truncate hidden sm:block">{agent.role}</p>
@@ -292,21 +319,21 @@ function UserChat() {
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Close Button - Hidden on mobile */}
               <button
-                onClick={() => navigate(-1)}
-                className="hidden sm:flex p-2.5 sm:p-3 rounded-xl bg-white shadow-sm border border-slate-200 hover:bg-gradient-to-br hover:from-slate-50 hover:to-slate-100 hover:shadow-md transition-all duration-200 group"
+                onClick={() => navigate("/agents")}
+                className="hidden sm:flex p-2.5 sm:p-3 rounded-lg bg-white/80 hover:bg-white transition-all duration-200 group"
                 aria-label="Go back"
               >
-                <FiX className="text-slate-600 text-lg sm:text-xl group-hover:text-slate-800 transition-colors" />
+                <FiX className="text-slate-500 text-lg sm:text-xl group-hover:text-slate-700 transition-colors" />
               </button>
 
               {/* User Menu */}
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/50 transition-all shadow-sm hover:shadow-md"
+                  className="flex items-center gap-2 px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white/80 hover:bg-white rounded-lg transition-all"
                 >
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-sm">
-                    <span className="text-white text-xs sm:text-sm font-semibold">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/90 flex items-center justify-center">
+                    <span className="text-white text-xs sm:text-sm font-medium">
                       {userData?.name?.charAt(0)?.toUpperCase() || "U"}
                     </span>
                   </div>
@@ -320,49 +347,49 @@ function UserChat() {
                       className="fixed inset-0 z-40" 
                       onClick={closeDropdown}
                     ></div>
-                    <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="p-4 border-b border-slate-100 bg-gradient-to-br from-emerald-50 to-green-50">
+                    <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white/95 backdrop-blur-md border border-slate-100 rounded-xl shadow-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="p-4 border-b border-slate-100 bg-emerald-50/50">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-md">
-                            <span className="text-white font-bold text-lg">{userData?.name?.charAt(0)?.toUpperCase() || "U"}</span>
+                          <div className="w-12 h-12 rounded-full bg-emerald-500/90 flex items-center justify-center">
+                            <span className="text-white font-medium text-lg">{userData?.name?.charAt(0)?.toUpperCase() || "U"}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-slate-800 truncate">{userData?.name || "Unknown User"}</p>
+                            <p className="text-sm font-medium text-slate-800 truncate">{userData?.name || "Unknown User"}</p>
                             <p className="text-xs text-slate-600 truncate">{userData?.email || "No email"}</p>
                           </div>
                         </div>
                       </div>
 
                       <div className="py-2">
-                        <Link to="/chathistory" onClick={closeDropdown} className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 transition-all group">
-                          <FiBookOpen className="mr-3 text-emerald-500 group-hover:scale-110 transition-transform" /> 
-                          <span className="font-medium">Chat History</span>
+                        <Link to="/chathistory" onClick={closeDropdown} className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50/50 transition-colors group">
+                          <FiBookOpen className="mr-3 text-emerald-500 group-hover:scale-105 transition-transform" /> 
+                          <span className="font-normal">Chat History</span>
                         </Link>
-                        <button className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 transition-all group" onClick={closeDropdown}>
-                          <FiStar className="mr-3 text-amber-500 group-hover:scale-110 transition-transform" /> 
-                          <span className="font-medium">Upgrade</span>
+                        <button className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-amber-50/50 transition-colors group" onClick={closeDropdown}>
+                          <FiStar className="mr-3 text-amber-500 group-hover:scale-105 transition-transform" /> 
+                          <span className="font-normal">Upgrade</span>
                         </button>
-                        <button className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50 transition-all group" onClick={closeDropdown}>
-                          <FiSettings className="mr-3 text-slate-500 group-hover:scale-110 transition-transform" /> 
-                          <span className="font-medium">Settings</span>
+                        <button className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors group" onClick={closeDropdown}>
+                          <FiSettings className="mr-3 text-slate-500 group-hover:scale-105 transition-transform" /> 
+                          <span className="font-normal">Settings</span>
                         </button>
                         <Link to="/help-support">
-                          <button className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all group" onClick={closeDropdown}>
-                            <FiHelpCircle className="mr-3 text-blue-500 group-hover:scale-110 transition-transform" /> 
-                            <span className="font-medium">Help & Support</span>
+                          <button className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50/50 transition-colors group" onClick={closeDropdown}>
+                            <FiHelpCircle className="mr-3 text-emerald-500 group-hover:scale-105 transition-transform" /> 
+                            <span className="font-normal">Help & Support</span>
                           </button>
                         </Link>
 
                         <div className="border-t border-slate-100 my-1"></div>
-                        <Link to="/agents" onClick={closeDropdown} className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all group">
-                          <FiMessageSquare className="mr-3 text-blue-500 group-hover:scale-110 transition-transform" /> 
-                          <span className="font-medium">My Agents</span>
+                        <Link to="/agents" onClick={closeDropdown} className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50/50 transition-colors group">
+                          <FiMessageSquare className="mr-3 text-emerald-500 group-hover:scale-105 transition-transform" /> 
+                          <span className="font-normal">My Agents</span>
                         </Link>
 
                         <div className="border-t border-slate-100 my-1"></div>
-                        <button onClick={handleLogout} className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 transition-all group">
-                          <FiLogOut className="mr-3 group-hover:scale-110 transition-transform" /> 
-                          <span className="font-medium">Logout</span>
+                        <button onClick={handleLogout} className="flex items-center w-full px-4 py-2.5 text-sm text-red-500 hover:bg-red-50/50 transition-colors group">
+                          <FiLogOut className="mr-3 group-hover:scale-105 transition-transform" /> 
+                          <span className="font-normal">Logout</span>
                         </button>
                       </div>
                     </div>
@@ -374,24 +401,24 @@ function UserChat() {
         </div>
       </header>
 
-      {/* CHAT MESSAGES - Beautiful Design */}
-      <main className="flex-1 overflow-hidden bg-gradient-to-b from-transparent via-slate-50/30 to-transparent">
+      {/* CHAT MESSAGES - Light & Airy */}
+      <main className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto custom-scrollbar">
-          <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8 space-y-4 sm:space-y-6">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8 space-y-4 sm:space-y-5">
             {messages.map((message) => (
               <div 
                 key={message.id} 
-                className={`flex items-start gap-3 sm:gap-4 group animate-in fade-in slide-in-from-bottom-2 duration-300 ${
+                className={`flex items-start gap-2.5 sm:gap-3 group ${
                   message.sender === "user" ? "flex-row-reverse" : ""
                 }`}
               >
                 {/* Avatar */}
-                <div className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 ${
+                <div className={`flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                   message.sender === "user" 
-                    ? "bg-gradient-to-br from-blue-500 to-indigo-600" 
-                    : "bg-gradient-to-br from-slate-800 via-slate-900 to-black"
+                    ? "bg-emerald-500/90" 
+                    : "bg-slate-700/90"
                 }`}>
-                  <span className={`text-sm sm:text-base font-bold ${
+                  <span className={`text-xs sm:text-sm font-medium ${
                     message.sender === "user" ? "text-white" : "text-white"
                   }`}>
                     {message.sender === "user" ? userData?.name?.charAt(0)?.toUpperCase() || "U" : agent.name.charAt(0).toUpperCase()}
@@ -400,21 +427,21 @@ function UserChat() {
 
                 {/* Message Content */}
                 <div className={`flex-1 min-w-0 ${message.sender === "user" ? "flex flex-col items-end" : ""}`}>
-                  <div className={`inline-block max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-lg transition-all duration-300 hover:shadow-xl ${
+                  <div className={`inline-block max-w-[85%] sm:max-w-[75%] rounded-2xl px-3.5 py-2.5 transition-all duration-200 ${
                     message.sender === "user"
-                      ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-br-sm"
-                      : "bg-white text-slate-800 border border-slate-100 rounded-bl-sm"
+                      ? "bg-emerald-500/90 text-white rounded-br-md"
+                      : "bg-white/80 backdrop-blur-sm text-slate-800 rounded-bl-md"
                   }`}>
-                    <div className={`flex items-center gap-2 mb-1.5 ${
+                    <div className={`flex items-center gap-1.5 mb-1 ${
                       message.sender === "user" ? "justify-end" : ""
                     }`}>
-                      <span className={`text-xs sm:text-sm font-semibold ${
-                        message.sender === "user" ? "text-blue-100" : "text-slate-600"
+                      <span className={`text-xs font-medium ${
+                        message.sender === "user" ? "text-emerald-100" : "text-slate-600"
                       }`}>
                         {message.sender === "user" ? "You" : agent.name}
                       </span>
                       <span className={`text-xs ${
-                        message.sender === "user" ? "text-blue-200" : "text-slate-400"
+                        message.sender === "user" ? "text-emerald-200" : "text-slate-400"
                       }`}>
                         {message.timestamp}
                       </span>
@@ -433,20 +460,20 @@ function UserChat() {
             
             {/* Typing Indicator */}
             {isLoading && (
-              <div className="flex items-start gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-2">
-                <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-black flex items-center justify-center shadow-lg">
-                  <span className="text-sm sm:text-base font-bold text-white">{agent.name.charAt(0).toUpperCase()}</span>
+              <div className="flex items-start gap-2.5 sm:gap-3">
+                <div className="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-700/90 flex items-center justify-center">
+                  <span className="text-xs sm:text-sm font-medium text-white">{agent.name.charAt(0).toUpperCase()}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="inline-block bg-white border border-slate-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs sm:text-sm font-semibold text-slate-600">{agent.name}</span>
+                  <div className="inline-block bg-white/80 backdrop-blur-sm rounded-2xl rounded-bl-md px-3.5 py-2.5">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <span className="text-xs font-medium text-slate-600">{agent.name}</span>
                       <span className="text-xs text-slate-400">typing...</span>
                     </div>
                     <div className="flex gap-1.5">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "0s" }}></div>
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                      <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: "0s" }}></div>
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                      <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
                     </div>
                   </div>
                 </div>
@@ -457,11 +484,11 @@ function UserChat() {
         </div>
       </main>
 
-      {/* INPUT - Beautiful Design */}
-      <footer className="border-t border-slate-200/60 bg-white/80 backdrop-blur-xl shadow-lg">
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-5">
+      {/* INPUT - Light & Minimal */}
+      <footer className="border-t border-slate-100/80 bg-white/70 backdrop-blur-md">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4">
           <form onSubmit={handleSendMessage} className="relative">
-            <div className="relative bg-white rounded-2xl border-2 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10">
+            <div className="relative bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/80 transition-all duration-200 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20">
               <textarea
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
@@ -472,26 +499,27 @@ function UserChat() {
                   }
                 }}
                 placeholder="Type your message... (Press Enter to send, Shift+Enter for new line)"
-                className="w-full px-4 sm:px-5 py-3 sm:py-4 pr-12 sm:pr-14 text-sm sm:text-base text-slate-800 placeholder-slate-400 bg-transparent rounded-2xl resize-none focus:outline-none transition-all"
+                className="w-full px-4 sm:px-5 py-3 sm:py-3.5 pr-11 sm:pr-12 text-sm sm:text-base text-slate-800 placeholder-slate-400 bg-transparent rounded-xl resize-none focus:outline-none transition-all"
                 rows={1}
-                style={{ minHeight: "52px", maxHeight: "160px" }}
+                style={{ minHeight: "48px", maxHeight: "160px" }}
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={!inputMessage.trim() || isLoading}
-                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-white bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
+                className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 {isLoading ? (
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  <FiSend className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <FiSend className="w-4 h-4" />
                 )}
               </button>
             </div>
           </form>
         </div>
       </footer>
+      </div>
     </div>
   );
 }

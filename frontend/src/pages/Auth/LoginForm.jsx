@@ -73,10 +73,10 @@ const LoginForm = ({ setView }) => {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-5xl font-extrabold text-emerald-600 mb-2">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-emerald-600 mb-2">
               Welcome Back
             </h2>
-            <p className="text-gray-600 text-lg">Sign in to continue to your account</p>
+            <p className="text-gray-600 text-base sm:text-lg">Sign in to continue to your account</p>
           </div>
 
           {/* Login Form Card */}

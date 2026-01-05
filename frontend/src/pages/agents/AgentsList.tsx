@@ -206,19 +206,7 @@ export default function AgentsList() {
                   </div>
                 </div>
               </div>
-              <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {agents.filter((a) => a.model.includes("gpt-4")).length}
-                    </p>
-                    <p className="text-sm text-slate-600">Premium Models</p>
-                  </div>
-                </div>
-              </div>
+             
               <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -352,8 +340,8 @@ export default function AgentsList() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && agentToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-gray-200">
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 relative border border-slate-100">
             <button
               type="button"
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg p-2 transition-colors"
