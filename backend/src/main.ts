@@ -13,40 +13,44 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   const configService = app.get(ConfigService);
-  // Default: production frontend domain
+  // Default: production frontend domain - fallback if env var not set
   const corsOrigin = configService.get<string>('CORS_ORIGIN') || 'https://chatbot-builder-virid.vercel.app';
   
   // Support multiple origins (comma-separated) or single origin
   const allowedOrigins = corsOrigin.split(',').map(origin => origin.trim());
   
-  // Global CORS middleware - must be before other middleware
+  console.log('🌐 CORS Origins:', allowedOrigins);
+  
+  // Global CORS middleware - MUST be first middleware
   app.use((req: any, res: any, next: any) => {
     const origin = req.headers.origin;
     
-    // Check if origin is allowed
+    // Always set CORS headers
     if (origin && allowedOrigins.includes(origin)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
-    } else if (!origin) {
-      // Allow requests with no origin
-      res.setHeader('Access-Control-Allow-Origin', '*');
+    } else if (origin) {
+      // For debugging - log unallowed origins
+      console.log('⚠️ Blocked origin:', origin);
+      console.log('✅ Allowed origins:', allowedOrigins);
     }
     
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
     res.setHeader('Access-Control-Expose-Headers', 'Authorization');
+    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
     
-    // Handle preflight OPTIONS requests
+    // Handle preflight OPTIONS requests - MUST return early
     if (req.method === 'OPTIONS') {
-      return res.status(204).end();
+      return res.status(204).send();
     }
     
     next();
   });
 
-  // Also enable CORS using NestJS built-in
+  // Also enable CORS using NestJS built-in (backup)
   app.enableCors({
-    origin: allowedOrigins,
+    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
