@@ -13,27 +13,26 @@ export default function HeroSection() {
       </div>
 
       <div className="container mx-auto text-center max-w-5xl relative">
-        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-semibold mb-8 border border-emerald-200/50">
+        <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-semibold mb-8 border border-emerald-200/50">
           <Zap className="w-4 h-4" />
-          AI-Powered Campus Assistant
+          No-Code AI Platform
         </div>
 
         <h1 className="text-5xl md:text-7xl font-bold text-slate-800 mb-8 leading-tight">
           {" "}
-          Your Campus Queries,{" "}
-          <span className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
+          Build AI Chatbots{" "}
+          <span className="text-emerald-600">
             {" "}
-            Answered 24/7{" "}
+            Without Code{" "}
           </span>{" "}
         </h1>
         <p className="text-lg md:text-xl text-slate-600 mb-12 leading-relaxed max-w-3xl mx-auto">
-          Ask your AI assistant about admissions, courses, fee structure,
-          hostels, and more – anytime, anywhere.
+          Create intelligent chatbots in minutes. No coding required. Train your AI agents with custom knowledge and deploy them instantly.
         </p>
         <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
           <button
             onClick={() => navigate("/agents")}
-            className="cursor-pointer group bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
+            className="cursor-pointer group bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center gap-3"
           >
             <MessageCircle className="w-6 h-6" />
             Create Agent
@@ -50,25 +49,22 @@ export default function HeroSection() {
               </div>
               <div className="text-left flex-1">
                 <p className="text-sm text-slate-500 mb-2">You</p>
-                <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-4 rounded-2xl rounded-tl-md border border-emerald-100">
+                <div className="bg-emerald-50 p-4 rounded-2xl rounded-tl-md border border-emerald-100">
                   <p className="text-slate-700">
-                    What is the last date to apply for Fall 2025 admissions?
+                    How do I create a chatbot for customer support?
                   </p>
                 </div>
               </div>
             </div>
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <MessageCircle className="w-5 h-5 text-white" />
               </div>
               <div className="text-left flex-1">
-                <p className="text-sm text-slate-500 mb-2">Campus Bot</p>
-                <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 rounded-2xl rounded-tl-md border border-slate-200">
+                <p className="text-sm text-slate-500 mb-2">AI Assistant</p>
+                <div className="bg-slate-50 p-4 rounded-2xl rounded-tl-md border border-slate-200">
                   <p className="text-slate-700">
-                    The last date for Fall 2025 admission is{" "}
-                    <strong>March 15, 2025</strong>. Early applicants should
-                    submit by <strong>January 31, 2025</strong> for priority
-                    review. 🎓
+                    Simply create a new agent, upload your knowledge base, and configure your chatbot's personality. No coding needed! 🚀
                   </p>
                 </div>
               </div>

@@ -12,44 +12,44 @@ export default function FeaturesSection() {
   const features = [
     {
       icon: Clock,
-      title: "24/7 Availability",
+      title: "No-Code Builder",
       description:
-        "Get instant answers anytime, day or night. No more waiting for office hours or busy phone lines.",
+        "Create powerful AI chatbots without writing a single line of code. Visual interface makes it easy for everyone.",
       gradient: "from-emerald-500 to-teal-500",
     },
     {
       icon: MessageCircle,
-      title: "Instant Responses",
+      title: "Instant Deployment",
       description:
-        "Get accurate information about admissions, courses, fees, faculty, and campus facilities in seconds.",
+        "Deploy your chatbot in minutes. Train it with your knowledge base and start conversations immediately.",
       gradient: "from-green-500 to-emerald-500",
     },
     {
       icon: Shield,
-      title: "Privacy Protected",
+      title: "Secure & Private",
       description:
-        "Your conversations are secure. We never share confidential details like salaries or personal data.",
+        "Enterprise-grade security. Your data and conversations are encrypted and never shared with third parties.",
       gradient: "from-teal-500 to-cyan-500",
     },
     {
       icon: BookOpen,
-      title: "Comprehensive Knowledge",
+      title: "Custom Knowledge Base",
       description:
-        "From course details to hostel applications, get information about every aspect of campus life.",
+        "Upload documents, FAQs, or connect data sources. Your chatbot learns from your content instantly.",
       gradient: "from-orange-500 to-amber-500",
     },
     {
       icon: Users,
-      title: "User-Friendly",
+      title: "Easy to Use",
       description:
-        "Simple, conversational interface that understands natural language. No technical expertise required.",
+        "Intuitive interface that anyone can master. Build, customize, and manage chatbots with ease.",
       gradient: "from-pink-500 to-rose-500",
     },
     {
       icon: MapPin,
-      title: "Campus Navigation",
+      title: "Multi-Channel Support",
       description:
-        "Get directions, timings, and information about campus facilities, events, and services.",
+        "Deploy your chatbot across websites, mobile apps, and messaging platforms with one click.",
       gradient: "from-violet-500 to-purple-500",
     },
   ];
@@ -59,14 +59,13 @@ export default function FeaturesSection() {
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
-            Why Choose This{" "}
-            <span className="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
-               Query Bot?
+            Why Choose{" "}
+            <span className="text-emerald-600">
+               Chatbot Builder?
             </span>
           </h2>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Experience the future of campus assistance with our intelligent,
-            always-available AI companion.
+            Build intelligent chatbots that understand your business. No coding skills required.
           </p>
         </div>
 

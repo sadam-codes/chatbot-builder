@@ -7,6 +7,7 @@ import {
   UnauthorizedException,
   Delete,
   Param,
+  BadRequestException,
 } from '@nestjs/common';
 import { ChatbotService } from './chatbot.service';
 import { JwtService } from '@nestjs/jwt';
@@ -100,6 +101,18 @@ export class ChatbotController {
   ) {
     const userId = this.getUserIdFromToken(authHeader);
     return this.chatbotService.clearChatHistory(userId, agentId);
+  }
+
+  // ------------------ PUBLIC API (No Authentication Required) ------------------
+  @Post('public/chat/:agentId')
+  async publicChat(
+    @Param('agentId') agentId: string,
+    @Body('question') question: string,
+  ) {
+    if (!question || !question.trim()) {
+      throw new BadRequestException('Question is required');
+    }
+    return this.chatbotService.publicQueryChat(agentId, question);
   }
 }
   

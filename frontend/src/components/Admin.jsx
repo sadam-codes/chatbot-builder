@@ -14,7 +14,8 @@ import {
   X,
   AlertTriangle,
   Loader2,
-  Shield,
+  Bot,
+  MessageSquare,
 } from "lucide-react";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -113,7 +114,7 @@ const Admin = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-8 text-center">
           <Loader2 className="h-12 w-12 text-emerald-600 mx-auto mb-4 animate-spin" />
-          <p className="text-slate-600 font-medium">Loading dashboard...</p>
+          <p className="text-slate-600 font-medium">Loading chatbot builder dashboard...</p>
         </div>
       </div>
     );
@@ -126,15 +127,15 @@ const Admin = () => {
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200/50 p-6 sm:p-8 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-emerald-600 to-green-600 p-3 rounded-xl shadow-lg">
-                <Shield className="h-8 w-8 text-white" />
+              <div className="bg-emerald-600 p-3 rounded-xl shadow-lg">
+                <Bot className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-clip-text text-transparent mb-2">
-                  Admin Dashboard
+                <h1 className="text-3xl sm:text-4xl font-bold text-emerald-600 mb-2">
+                  Chatbot Builder Dashboard
                 </h1>
                 <p className="text-slate-600 flex items-center gap-2">
-                  <span>Welcome back,</span>
+                  <span>No-code platform admin • Welcome back,</span>
                   <span className="font-semibold text-emerald-600 flex items-center gap-1">
                     <User className="h-4 w-4" />
                     {user?.name}
@@ -164,7 +165,7 @@ const Admin = () => {
                   User Management
                 </h2>
                 <p className="text-slate-600 mt-1">
-                  Manage user accounts and permissions
+                  Manage chatbot builder users and their access permissions
                 </p>
               </div>
             </div>

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronDown, User, KeyRound, LogOut, Menu, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-import mnsuamLogo from "../../assets/logo-MNSUAM.jpg";
+import mnsuamLogo from "../../assets/agent.png";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -70,11 +70,11 @@ export default function Header() {
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
             </div>
             <div className="ml-3 lg:ml-4">
-              <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
-                Ask MNSUAM
+              <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600">
+                Chatbot Builder
               </span>
               <p className="hidden sm:block text-xs lg:text-sm text-slate-500 font-medium">
-                Your Academic Assistant
+                No-Code AI Platform
               </p>
             </div>
           </div>

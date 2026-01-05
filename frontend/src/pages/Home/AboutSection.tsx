@@ -4,19 +4,19 @@ import { CheckCircle, Clock, Shield, Zap } from "lucide-react";
 export default function AboutSection() {
   const benefits = [
     {
-      text: "No delays, no confusion, no wasted time",
+      text: "Build chatbots in minutes, not weeks",
       icon: <Clock className="w-4 h-4 text-white" />,
     },
     {
-      text: "Always available, always accurate",
+      text: "No coding skills required—anyone can use it",
       icon: <Zap className="w-4 h-4 text-white" />,
     },
     {
-      text: "Respectful of privacy and confidentiality",
+      text: "Enterprise-grade security and privacy",
       icon: <Shield className="w-4 h-4 text-white" />,
     },
     {
-      text: "Making campus life easier, faster, and smarter",
+      text: "Scale your customer support without scaling costs",
       icon: <CheckCircle className="w-4 h-4 text-white" />,
     },
   ];
@@ -29,11 +29,10 @@ export default function AboutSection() {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
-            About Our Project
+            About Our Platform
           </h2>
           <p className="text-xl text-slate-600">
-            Revolutionizing campus communication through intelligent AI
-            technology
+            Empowering businesses to build intelligent chatbots without coding
           </p>
         </div>
 
@@ -45,14 +44,15 @@ export default function AboutSection() {
                 The Problem We Solve
               </h3>
               <p className="text-slate-600 mb-6 leading-relaxed text-lg">
-                Imagine joining campus for the first time and having dozens of
-                questions about admission deadlines, fee structures, faculty
-                qualifications, available courses, campus timings, or how to
-                apply for hostel/transport.
+                Building AI chatbots traditionally requires extensive coding knowledge, 
+                expensive developers, and weeks of development time. Many businesses 
+                want to leverage AI for customer support, lead generation, or automation 
+                but lack the technical expertise or budget.
               </p>
               <p className="text-slate-600 mb-8 leading-relaxed text-lg">
-                Currently, students must search multiple web pages, make calls,
-                or disturb busy faculty and staff.
+                Complex chatbot platforms with steep learning curves prevent teams 
+                from quickly deploying AI solutions that could transform their customer 
+                experience and operations.
               </p>
             </div>
 
@@ -62,10 +62,10 @@ export default function AboutSection() {
                 Our Solution
               </h3>
               <p className="text-slate-600 leading-relaxed text-lg">
-                Our Campus Query Bot is a smart AI-powered assistant, available
-                24/7, providing instant, accurate answers about admissions,
-                academics, events, and campus facilities in clear, simple
-                language.
+                Our no-code chatbot builder platform empowers anyone to create intelligent 
+                AI assistants in minutes. Simply upload your knowledge base, customize 
+                your chatbot's personality, and deploy instantly—no coding required. 
+                Build chatbots that understand your business and serve your customers 24/7.
               </p>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function AboutSection() {
             <ul className="space-y-6">
               {benefits.map((benefit, index) => (
                 <li key={index} className="flex items-start gap-4">
-                  <div className="w-6 h-6 bg-gradient-to-br from-emerald-400 to-green-400 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     {benefit.icon}
                   </div>
                   <span className="text-slate-600 text-lg leading-relaxed">

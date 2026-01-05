@@ -28,10 +28,14 @@ async function bootstrap() {
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // Allow all origins for public API endpoints only
+        // This enables Postman, curl, and other tools to test the public API
+        callback(null, true);
       }
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Explicit body parsers

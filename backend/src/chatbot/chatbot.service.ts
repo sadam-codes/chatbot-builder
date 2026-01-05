@@ -118,4 +118,75 @@ CRITICAL RULES:
     await this.chatHistoryModel.destroy({ where: { userId, agentId } });
     return { message: 'Chat history cleared successfully' };
   }
+
+  // ------------------ Public Query Chat (No Authentication Required) ------------------
+  async publicQueryChat(agentId: string, question: string) {
+    // 1. Get agent configuration (no userId check for public access)
+    const agent = await this.agentModel.findOne({
+      where: { id: agentId },
+    });
+    
+    if (!agent) {
+      throw new NotFoundException('Agent not found');
+    }
+    
+    // 2. Build system prompt from agent role and instructions
+    const systemPrompt = `You are ${agent.role}. 
+
+${agent.instructions}
+
+CRITICAL RULES:
+- You MUST ONLY respond to requests that are directly related to your specific role and purpose as ${agent.role}.
+- If a user asks you something outside your role (like general knowledge questions, math problems, history, etc.), you MUST politely decline and redirect them back to your purpose.
+- You are NOT a general-purpose assistant. You are a specialized agent focused ONLY on: ${agent.role}.
+- Always stay in character and within your defined role. Never answer questions that are unrelated to your purpose.
+- If asked something outside your role, respond with: "I'm sorry, but I'm specifically designed to help with [your role]. I can only assist with matters related to that. How can I help you with [your role] instead?"`;
+
+    // 3. Fetch recent chat history for this agent (public chats, userId = null or 0)
+    const chatHistory = await this.chatHistoryModel.findAll({
+      where: { agentId },
+      order: [['createdAt', 'ASC']],
+      limit: 10,
+    });
+    const recentHistory = chatHistory.slice(-10);
+    const historyMessages = recentHistory.flatMap((h) => [
+      { role: 'user' as const, content: h.question },
+      { role: 'assistant' as const, content: h.answer },
+    ]);
+
+    // 4. Build messages array
+    const messages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...historyMessages,
+      { role: 'user' as const, content: question },
+    ];
+
+    // 5. Call OpenAI Chat API with agent's selected model
+    try {
+      const completion = await this.openai.chat.completions.create({
+        model: agent.model,
+        messages: messages,
+        max_tokens: 1000,
+      });
+
+      const answer = completion.choices?.[0]?.message?.content || 'No answer found';
+
+      // 6. Save chat history with agentId (userId = 0 for public chats)
+      await this.chatHistoryModel.create({ 
+        userId: 0, // Public chat identifier
+        agentId, 
+        question, 
+        answer 
+      });
+
+      return { question, answer, agentName: agent.name };
+    } catch (err: any) {
+      console.error('OpenAI API Error:', err.message || err);
+      return {
+        question,
+        answer: 'The AI service is currently unavailable. Please try again later.',
+        agentName: agent.name,
+      };
+    }
+  }
 }
