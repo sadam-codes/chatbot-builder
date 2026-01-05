@@ -28,19 +28,37 @@ async function bootstrap() {
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        // Allow all origins for public API endpoints only
-        // This enables Postman, curl, and other tools to test the public API
-        callback(null, true);
+        callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Explicit body parsers
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
+
+  // Add CORS middleware specifically for public API endpoints
+  app.use((req: any, res: any, next: any) => {
+    // Check if this is a public API endpoint
+    if (req.path && req.path.includes('/chatbot/public/')) {
+      // Allow all origins for public API
+      const origin = req.headers.origin;
+      if (origin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+      } else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      }
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      
+      // Handle preflight requests
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+      }
+    }
+    next();
+  });
 
   const sequelize = app.get(Sequelize);
   await sequelize.sync({ alter: true });
