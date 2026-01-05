@@ -80,12 +80,11 @@ async function getApp() {
 // For Vercel serverless
 export const handler = async (event: any, context: any) => {
   // Handle OPTIONS preflight requests directly
-  if (event.httpMethod === 'OPTIONS' || event.requestContext?.http?.method === 'OPTIONS') {
-    const app = await getApp();
-    const configService = app.get(ConfigService);
-    const corsOrigin = configService.get('CORS_ORIGIN') || 'https://chatbot-builder-virid.vercel.app';
+  const method = event.requestContext?.http?.method || event.httpMethod || event.method;
+  if (method === 'OPTIONS') {
+    const corsOrigin = process.env.CORS_ORIGIN || 'https://chatbot-builder-virid.vercel.app';
     const allowedOrigins = corsOrigin.split(',').map(origin => origin.trim());
-    const origin = event.headers?.origin || event.headers?.Origin || event.headers?.['origin'] || event.headers?.['Origin'];
+    const origin = event.headers?.origin || event.headers?.Origin || event.headers?.['origin'] || event.headers?.['Origin'] || '';
     
     return {
       statusCode: 204,
