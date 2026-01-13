@@ -13,12 +13,12 @@ export default function CampusQueryBotLanding() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-green-100">
       <Header />
       <HeroSection />
-      <FeaturesSection />
-      <AboutSection />
-    <SupervisorSection/>
-      <TeamSection />
-      <ContactSection />
-      <Footer />
+      {/* <FeaturesSection /> */}
+      {/* <AboutSection /> */}
+    {/* <SupervisorSection/> */}
+      {/* <TeamSection /> */}
+      {/* <ContactSection /> */}
+      {/* <Footer /> */}
     </div>
   );
 }
