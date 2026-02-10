@@ -1,4 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 import { InjectModel } from '@nestjs/sequelize';
 import { ChatHistory } from '../models/chat-history.model';
 import { Agent } from '../models/agent.model';
@@ -15,6 +18,54 @@ export class ChatbotService {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY || '',
     });
+  }
+
+  // ------------------ Voice Features ------------------
+
+  async transcribeAudio(file: Express.Multer.File): Promise<string> {
+    const tempFilePath = path.join(os.tmpdir(), `upload_${Date.now()}_${file.originalname}`);
+    fs.writeFileSync(tempFilePath, file.buffer);
+
+    try {
+      const transcription = await this.openai.audio.transcriptions.create({
+        file: fs.createReadStream(tempFilePath),
+        model: 'whisper-1',
+      });
+      return transcription.text;
+    } finally {
+      if (fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
+    }
+  }
+
+  async generateSpeech(text: string): Promise<Buffer> {
+    const mp3 = await this.openai.audio.speech.create({
+      model: 'tts-1',
+      voice: 'alloy',
+      input: text,
+    });
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    return buffer;
+  }
+
+  async voiceQuery(userId: number, agentId: string, audioFile: Express.Multer.File) {
+    // 1. Transcribe the audio
+    const question = await this.transcribeAudio(audioFile);
+    if (!question || !question.trim()) {
+      throw new BadRequestException('Could not transcribe audio');
+    }
+
+    // 2. Query the agent (reuse existing logic)
+    const result = await this.queryChat(userId, agentId, question);
+
+    // 3. Generate speech for the answer
+    const audioBuffer = await this.generateSpeech(result.answer);
+
+    return {
+      ...result,
+      audioBase64: audioBuffer.toString('base64'),
+    };
   }
 
   // ------------------ Agent Management ------------------
@@ -52,7 +103,7 @@ export class ChatbotService {
   async queryChat(userId: number, agentId: string, question: string) {
     // 1. Get agent configuration
     const agent = await this.getAgent(agentId, userId);
-    
+
     // 2. Build system prompt from agent role and instructions
     const systemPrompt = `You are ${agent.role}. 
 
@@ -125,11 +176,11 @@ CRITICAL RULES:
     const agent = await this.agentModel.findOne({
       where: { id: agentId },
     });
-    
+
     if (!agent) {
       throw new NotFoundException('Agent not found');
     }
-    
+
     // 2. Build system prompt from agent role and instructions
     const systemPrompt = `You are ${agent.role}. 
 
@@ -172,11 +223,11 @@ CRITICAL RULES:
       const answer = completion.choices?.[0]?.message?.content || 'No answer found';
 
       // 6. Save chat history with agentId (userId = 0 for public chats)
-      await this.chatHistoryModel.create({ 
+      await this.chatHistoryModel.create({
         userId: 0, // Public chat identifier
-        agentId, 
-        question, 
-        answer 
+        agentId,
+        question,
+        answer
       });
 
       return { question, answer, agentName: agent.name };
@@ -187,6 +238,60 @@ CRITICAL RULES:
         answer: 'The AI service is currently unavailable. Please try again later.',
         agentName: agent.name,
       };
+    }
+  }
+
+  async streamQuery(userId: number, agentId: string, question: string) {
+    // 1. Get agent configuration
+    const agent = await this.getAgent(agentId, userId);
+
+    // 2. Build system prompt (reusing same logic)
+    const systemPrompt = `You are ${agent.role}. 
+
+${agent.instructions}
+
+CRITICAL RULES:
+- You MUST ONLY respond to requests that are directly related to your specific role and purpose as ${agent.role}.
+- If a user asks you something outside your role, you MUST politely decline.
+- You are NOT a general-purpose assistant. 
+- Always stay in character.`;
+
+    // 3. Fetch history
+    const chatHistory = await this.chatHistoryModel.findAll({
+      where: { userId, agentId },
+      order: [['createdAt', 'ASC']],
+    });
+    const recentHistory = chatHistory.slice(-10);
+    const historyMessages = recentHistory.flatMap((h) => [
+      { role: 'user' as const, content: h.question },
+      { role: 'assistant' as const, content: h.answer },
+    ]);
+
+    // 4. Build messages
+    const messages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...historyMessages,
+      { role: 'user' as const, content: question },
+    ];
+
+    // 5. Call OpenAI with stream: true
+    try {
+      const stream = await this.openai.chat.completions.create({
+        model: agent.model,
+        messages: messages,
+        stream: true,
+      });
+
+      return {
+        stream,
+        agent,
+        saveData: async (fullAnswer: string) => {
+          await this.chatHistoryModel.create({ userId, agentId, question, answer: fullAnswer });
+        }
+      };
+    } catch (err: any) {
+      console.error('OpenAI Streaming Error:', err);
+      throw err;
     }
   }
 }

@@ -5,19 +5,24 @@ import {
   Get,
   Headers,
   UnauthorizedException,
-  Delete,
   Param,
   BadRequestException,
+  UseInterceptors,
+  UploadedFile,
+  Delete,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ChatbotService } from './chatbot.service';
 import { JwtService } from '@nestjs/jwt';
+import { Response as ExpressResponse } from 'express';
+import { Res } from '@nestjs/common';
 
 @Controller('chatbot')
 export class ChatbotController {
   constructor(
     private chatbotService: ChatbotService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   private getUserIdFromToken(authHeader: string): number {
     if (!authHeader) throw new UnauthorizedException('No auth token provided');
@@ -37,6 +42,18 @@ export class ChatbotController {
       throw new UnauthorizedException('Token does not contain user ID');
 
     return userId;
+  }
+
+  @Post('transcribe')
+  @UseInterceptors(FileInterceptor('audio'))
+  async transcribe(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Audio file is required');
+    }
+    const text = await this.chatbotService.transcribeAudio(file);
+    return { text };
   }
 
   // ------------------ AGENT MANAGEMENT ------------------
@@ -84,6 +101,82 @@ export class ChatbotController {
     return this.chatbotService.queryChat(userId, agentId, question);
   }
 
+  // ------------------ VOICE QUERY ------------------
+  @Post('voice-query')
+  @UseInterceptors(FileInterceptor('audio'))
+  async voiceQuery(
+    @Headers('authorization') authHeader: string,
+    @Body('agentId') agentId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const userId = this.getUserIdFromToken(authHeader);
+    if (!file) {
+      throw new BadRequestException('Audio file is required');
+    }
+    if (!agentId) {
+      throw new BadRequestException('Agent ID is required');
+    }
+    return this.chatbotService.voiceQuery(userId, agentId, file);
+  }
+
+  // ------------------ STREAM QUERY ------------------
+  @Post('stream-query')
+  async streamChat(
+    @Headers('authorization') authHeader: string,
+    @Body('agentId') agentId: string,
+    @Body('question') question: string,
+    @Res() res: ExpressResponse,
+  ) {
+    const userId = this.getUserIdFromToken(authHeader);
+
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    try {
+      const { stream, saveData } = await this.chatbotService.streamQuery(userId, agentId, question);
+
+      let fullAnswer = '';
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          fullAnswer += content;
+          res.write(`data: ${JSON.stringify({ content })}\n\n`);
+        }
+      }
+
+      // Save history after stream finishes
+      await saveData(fullAnswer);
+
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (err) {
+      console.error('Streaming Error:', err);
+      res.status(500).write(`data: ${JSON.stringify({ error: 'Streaming failed' })}\n\n`);
+      res.end();
+    }
+  }
+
+  // ------------------ TTS ------------------
+  @Post('tts')
+  async generateTTS(
+    @Body('text') text: string,
+    @Res() res: ExpressResponse,
+  ) {
+    if (!text) {
+      throw new BadRequestException('Text is required');
+    }
+    try {
+      const buffer = await this.chatbotService.generateSpeech(text);
+      res.setHeader('Content-Type', 'audio/mpeg');
+      res.send(buffer);
+    } catch (err) {
+      console.error('TTS Error:', err);
+      res.status(500).send('Failed to generate speech');
+    }
+  }
+
   // ------------------ HISTORY ------------------
   @Get('history/:agentId')
   async getChatHistory(
@@ -115,4 +208,3 @@ export class ChatbotController {
     return this.chatbotService.publicQueryChat(agentId, question);
   }
 }
-  
